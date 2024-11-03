@@ -39,21 +39,19 @@ def remove_stop_words(raw_sen, stop_words):
     return [w for w in raw_sen if w not in stop_words]
 
 def predict_sentiment(comment):
+    """Predict sentiment of the given comment."""
+    # Preprocess the input
     comment = remove_punctuation(comment)
     comment = remove_stop_words(comment.split(), stop_words)
     word_set = set(wv_model.wv.index_to_key)
-    valid_words = [w for w in comment if w in word_set]
-
-    if not valid_words:  # No recognizable words
-        return 0.5  # Neutral score for random or non-meaningful input
-
     X = np.zeros((1, 25, 100))
-    nw = 24
-    for w in list(reversed(valid_words)):
+    nw = 24  # Start filling from the end of the array
+    for w in list(reversed(comment)):
         if w in word_set and nw >= 0:
             X[0, nw] = wv_model.wv[w]
             nw -= 1
 
+    # Predict the sentiment
     prediction = model.predict(X)
     return float(prediction[0][0])
 
@@ -72,7 +70,7 @@ def predict():
     data = request.get_json(force=True)
     comment = data['comment']
     sentiment = predict_sentiment(comment)
-    label = 'Positive' if sentiment > 0.6 else 'Negative' if sentiment < 0.4 else 'Neutral'
+    label = 'Positive' if sentiment > 0.5 else 'Negative' if sentiment < 0.5 else 'Neutral'
     return jsonify({'sentiment': sentiment, 'label': label})
 
 if __name__ == '__main__':

@@ -3,258 +3,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentiment Analysis Chatbot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <title>Sentiment Analysis Project</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     <style>
-        body {
-            font-family: 'Source Serif Pro', serif;
-            background-color: #fef6f6;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', sans-serif;
         }
-        .chat-container {
-            width: 400px;
-            height: 700px;
-            background-color: #fffeeb;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+        body {
+            background: #f5f5f7;
+            color: #a6a6b7;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #000428, #004e92);
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
-        .chat-header {
-            background-color: #c53030;
-            color: white;
-            padding: 20px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            text-align: center;
-            font-size: 1.4em;
-            font-weight: 600;
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('/api/placeholder/1920/1080') center/cover;
+            opacity: 0.1;
         }
-        .chat-messages {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background-color: #fffeeb;
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 800px;
         }
-        .message {
-            margin-bottom: 15px;
-            padding: 12px;
-            border-radius: 6px;
-            max-width: 80%;
-            font-size: 1.1em;
-        }
-        .user-message {
-            background-color: #c92923;
-            color: #eee2df; 
-            align-self: flex-end;
-            margin-left: auto;
-        }
-        .bot-message {
-            background-color: #fae7e9;
-            color: #8b0412;
-            align-self: flex-start;
-        }
-        .chat-input {
-            display: flex;
-            padding: 16px;
-            background-color: #f0f4f8;
-            border-top: 1px solid #ddd;
-        }
-        #user-input {
-            flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #B0BEC5;
-            border-radius: 6px;
-            font-size: 1.1em;
-            outline: none;
-        }
-        .btn-77 {
-            background-color: #c53030;
+
+        .hero h1 {
+            font-size: 3.5rem;
             color: #fff;
-            cursor: pointer;
-            font-family: 'Source Serif Pro', serif;
-            font-size: 0.9em;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600; 
-            text-transform: uppercase;
-            margin-left: 10px;
-            transition: background-color 0.3s ease;
+            margin-bottom: 1rem;
+            font-weight: 700;
         }
-        .btn-77:hover {
-            background-color: #9b2c2c;
-        }
-        .option-button {
-            border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            margin: 10px; /* Add margin for spacing */
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-            font-size: 1.1em;
+
+        .hero h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 1rem;
             font-weight: 600;
-            color: white; 
         }
-        .option-buttons-container {
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        /* Buttons */
+        .cta-buttons {
             display: flex;
-            justify-content: center; /* Center buttons horizontally */
-            margin-top: 10px; /* Spacing above the buttons */
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 2rem;
         }
-        .option-button.yes {
-            background-color: #28a745; /* Green for Yes */
-        }
-        .option-button.yes:hover {
-            background-color: #218838; /* Darker green on hover */
-        }
-        .option-button.no {
-            background-color: #dc3545; /* Red for No */
-        }
-        .option-button.no:hover {
-            background-color: #c82333; /* Darker red on hover */
-        }
-        .chat-footer {
-            background-color: #f0f4f8;
-            text-align: center;
-            padding: 12px;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-            font-size: 0.9em;
-            color: #555;
-        }
-        .chat-footer a {
-            color: #c53030; /* Match the red theme */
+
+        .cta-button {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .try-demo {
+            background: #007AFF;
+            color: white;
+        }
+
+        .try-demo:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 122, 255, 0.4);
+        }
+
+        .learn-more {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .learn-more:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.1s ease-out;
+            background: white;
+        }
+
+        .content-section.active {
+            max-height: 2000px;
+        }
+
+        .section-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #007AFF;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #080202;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+       /* Section */
+       section {
+            padding: 4rem 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            color: #007AFF;
+            margin-bottom: 2rem;
+            text-align: center;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .team-member {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .team-member:hover {
+            transform: translateY(-10px);
+        }
+
+        /* Methodology Section */
+        .methodology-diagram {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+            animation: fadeInUp 1.5s ease;
+        }
+                /* Smooth Scroll */
+                html {
+            scroll-behavior: smooth;
+        }
+             /* Results Section */
+             .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            color: #007AFF;
             font-weight: bold;
         }
-        .chat-footer a:hover {
-            text-decoration: underline;
-        }
+        .footer {
+    display: flex;
+    flex-direction: column;  /* Stack items vertically */
+    align-items: center;     /* Center items horizontally */
+    background-color: #333;  /* Dark background for the footer */
+    color: white;            /* White text color */
+    padding: 20px;          /* Padding around the footer */
+    font-family: Arial, sans-serif; /* Font for the footer text */
+}
+
+.footer p {
+    margin: 10px 0;         /* Margin for spacing between paragraphs */
+}
+
+.social-links {
+    display: flex;           /* Use flexbox for social links */
+    justify-content: center; /* Center social links */
+    margin: 10px 0;         /* Margin for spacing around social links */
+}
+
+.social-links a {
+    color: white;           /* Icon color */
+    margin: 0 15px;        /* Spacing between icons */
+    font-size: 24px;       /* Size of icons */
+    transition: color 0.3s; /* Smooth transition for hover effect */
+}
+
+.social-links a:hover {
+    color: #007BFF;        /* Change color on hover */
+}
+
+.footer p:last-child {
+    font-size: 14px;       /* Smaller font size for copyright text */
+}
+/* Introduction Section */
+#intro {
+    background: linear-gradient(to right, #4a90e2, #50e3c2); /* Gradient background */
+    padding: 60px 20px;   /* Increased padding for more breathing space */
+    text-align: center;    /* Center-align text */
+    color: white;          /* White text color for contrast */
+}
+
+.container {
+    max-width: 900px;      /* Increased max width for better layout */
+    margin: auto;          /* Center the container */
+}
+
+h2 {
+    font-size: 32px;       /* Larger font size for the heading */
+    margin-bottom: 20px;   /* Space below the heading */
+    text-transform: uppercase; /* Uppercase letters for emphasis */
+    letter-spacing: 1px;   /* Spacing between letters */
+    font-weight: bold;      /* Bold font weight */
+}
+
+p {
+    font-size: 18px;       /* Larger font size for paragraphs */
+    line-height: 1.6;      /* Line height for readability */
+    margin-bottom: 30px;   /* Space below paragraphs */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Text shadow for depth */
+}
+
+.team-grid {
+    display: grid;         /* Use grid layout for team members */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive columns */
+    gap: 30px;            /* Increased space between grid items */
+    margin-top: 40px;     /* Space above the team section */
+}
+
+.team-member {
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white background */
+    border-radius: 12px;  /* More rounded corners */
+    padding: 30px;        /* Increased padding for team member boxes */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Deeper shadow for modern look */
+    transition: transform 0.3s, box-shadow 0.3s; /* Transition for hover effect */
+}
+
+.team-member:hover {
+    transform: translateY(-8px); /* Lift effect on hover */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.team-member h3 {
+    margin: 0;               /* Remove default margin */
+    font-size: 22px;        /* Size for member name */
+    color: #333;            /* Dark color for member name */
+    font-weight: bold;      /* Bold font weight for names */
+}
+
+.team-member p {
+    font-size: 16px;        /* Size for member role */
+    color: #0f0707;            /* Gray color for member role */
+    margin-top: 5px;       /* Space above role text */
+}
+
+
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            Sentiment Analysis Chatbot
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <!-- Messages will be added here dynamically -->
-        </div>
-        <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="send-button" class="btn-77">Send</button>
-        </div>
-        <div class="chat-footer">
-            &copy; 2024 HVK | <a href="https://github.com/Harsha-Chinthala/Bidirectional-LSTM-GRU-Model.git">GitHub Repository</a>
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Sentiment Analyzer</h1>
+            <h2>Sentiment Analysis of Product Reviews</h2>
+            <p>Enhancing customer feedback through advanced natural language processing and deep learning</p>
+            <div class="cta-buttons">
+                <a href="\demo" class="cta-button try-demo">
+                    <i class="fas fa-play-circle"></i>
+                    Try Demo
+                </a>
+                <button onclick="toggleContent()" class="cta-button learn-more">
+                    <i class="fas fa-info-circle"></i>
+                    Learn More
+                </button>
+            </div>
         </div>
     </div>
 
+    <div id="contentSection" class="content-section">
+        <div class="section-content">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Why Choose SentiAnalyzer?</h2>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Hybrid Model</h3>
+                    <p>Powered by state-of-the-art deep learning models for accurate sentiment analysis</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Real-time Analysis</h3>
+                    <p>Get instant insights from customer reviews and feedback</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Detailed Analytics</h3>
+                    <p>Comprehensive reports and visualizations of sentiment trends</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="intro">
+        <div class="container">
+            <h2>Introduction</h2>
+            <p>This project focuses on developing a chatbot system for sentiment analysis using deep learning models, analyzing customer reviews to classify them as positive or negative or neutral, and providing real-time insights for businesses.
+                The project employs a dataset of Amazon reviews, preprocessed with techniques like stopwords removal and Word2Vec, using Bidirectional GRU and LSTM layers for context capture, trained on one million review samples, and evaluated for various performance metrics.
+                The chatbot interface allows user interaction for real-time sentiment analysis.
+            </p>
+    
+            <div class="team-grid">
+                <div class="team-member">
+                    <h3>CHINTHALA HARSHA VARDHAN</h3>
+                    <p>Team Leader</p>
+                </div>
+                <div class="team-member">
+                    <h3>SAGI BHIMESWARA AKSHAY VARMA</h3>
+                    <p>Team Member</p>
+                </div>
+                <div class="team-member">
+                    <h3>VANDRAPU SIVA GANESH</h3>
+                    <p>Team Member</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="methodology">
+        <div class="container">
+            <h2>Model Comparision</h2>
+            <div class="methodology-diagram">
+                <canvas id="modelArchitecture"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section id="results">
+        <div class="container">
+            <h2>Results & Performance</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Accuracy</h3>
+                    <div class="metric-value">90.28%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Precision</h3>
+                    <div class="metric-value">92.86%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Recall</h3>
+                    <div class="metric-value">91.58%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>F1 Score</h3>
+                    <div class="metric-value">92.21%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+
+    <footer class="footer" id="contact">
+        <p>Contact us on social media</p>
+        <div class="social-links">
+            <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+        </div>
+        <p>&copy; 2024 Sentiment Analysis Project. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript for Demo (Simple Sentiment Analysis Function) -->
     <script>
-        const chatMessages = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-
-        let userName = '';
-        let conversationStep = 0;
-
-        function addMessage(message, isUser) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message');
-            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function getBotResponse(userMessage) {
-            return fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ comment: userMessage }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                return `Sentiment: ${data.label}`;
-            })
-            .catch(() => {
-                return "Sorry, I couldn't analyze that message. Please try again 🙂.";
-            });
-        }
-
-        function addOptionButtons() {
-            const buttonsContainer = document.createElement('div');
-            buttonsContainer.classList.add('option-buttons-container');
-
-            const yesButton = document.createElement('button');
-            yesButton.textContent = 'Yes';
-            yesButton.classList.add('option-button', 'yes');
-            yesButton.onclick = () => handleOptionSelection('yes');
-
-            const noButton = document.createElement('button');
-            noButton.textContent = 'No';
-            noButton.classList.add('option-button', 'no');
-            noButton.onclick = () => handleOptionSelection('no');
-
-            buttonsContainer.appendChild(yesButton);
-            buttonsContainer.appendChild(noButton);
-            chatMessages.appendChild(buttonsContainer);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function handleOptionSelection(option) {
-            if (option === 'yes') {
-                addMessage("Great! Please enter your next comment.", false);
-                conversationStep = 1;
-            } else if (option === 'no') {
-                addMessage(`Thank you for chatting, ${userName}! Have a great day 😊!`, false);
-                conversationStep = 3; // End conversation
-            }
-            // Remove option buttons after selection
-            const buttons = document.querySelectorAll('.option-button');
-            buttons.forEach(button => button.closest('.option-buttons-container').remove());
-        }
-
-        function handleUserInput() {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                userInput.value = '';
-
-                switch (conversationStep) {
-                    case 0: // Getting user's name
-                        userName = message;
-                        addMessage(`Nice to meet you, ${userName} 😃! Please enter a comment to analyze!`, false);
-                        conversationStep = 1;
-                        break;
-                    case 1: // Analyzing sentiment
-                        getBotResponse(message).then(response => {
-                            addMessage(response, false);
-                            addMessage("Do you have another comment?", false);
-                            addOptionButtons(); // Show buttons instead of input
-                            conversationStep = 2;
-                        });
-                        break;
+                const ctx = document.getElementById('modelArchitecture').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Naive Bayes', 'Logistic Regression', 'SVM', 'Bi-GRU + LSTM', 'CNNs', 'RNNs','Bidirectional RNNs'],
+                datasets: [{
+                    label: 'Accuracy',
+                    data: [72, 80, 85, 90.28, 83.5, 82.8,87.9],
+                    backgroundColor: '#007AFF',
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
+        });
+        function toggleContent() {
+            const contentSection = document.getElementById('contentSection');
+            contentSection.classList.toggle('active');
+            
+            // Scroll to content section if it's being opened
+            if (contentSection.classList.contains('active')) {
+                contentSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
-        sendButton.addEventListener('click', handleUserInput);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleUserInput();
-            }
+        // Add animation to features when they come into view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, {
+            threshold: 0.1
         });
 
-        // Initial bot message
-        addMessage("Hi User! What's your name?", false);
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
     </script>
 </body>
 </html>
