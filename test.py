@@ -6,7 +6,7 @@ import numpy as np
 import string
 from tensorflow.keras.utils import register_keras_serializable
 
-app = Flask(__name__)
+test = Flask(__name__)  # Second app uses `test`
 
 @register_keras_serializable()
 class SumAlongAxis(tf.keras.layers.Layer):
@@ -57,16 +57,17 @@ def predict_sentiment(comment):
     prediction = model.predict(X)
     return float(prediction[0][0])
 
-@app.route('/')
+@test.route('/')
 def home():
     """Render the home page."""
     return render_template('index.html')
-@app.route('/demo')
+
+@test.route('/test')
 def demo():
     """Render the demo page."""
-    return render_template('demo.html')
+    return render_template('test.html')
 
-@app.route('/predict', methods=['POST'])
+@test.route('/predict', methods=['POST'])
 def predict():
     """Handle the prediction request."""
     data = request.get_json(force=True)
@@ -76,4 +77,4 @@ def predict():
     return jsonify({'sentiment': sentiment, 'label': label})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    test.run(debug=True, port=5001)  # Specify a different port (e.g., 5001)
