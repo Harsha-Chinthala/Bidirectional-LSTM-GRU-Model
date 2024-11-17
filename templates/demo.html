@@ -3,370 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentiment Analysis Chatbot</title>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <title>Customer Review Sentiment Chatbot</title>
     <style>
-body {
-    font-family: 'Source Serif Pro', serif;
-    background-color: #fef6f6;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
 
-.chat-container {
-    width: 400px;
-    height: 700px;
-    background-color: #fffeeb;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+        body {
+            background-color: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
 
-.chat-header {
-    background-color: #c53030;
-    color: white;
-    padding: 20px;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    text-align: center;
-    font-size: 1.4em;
-    font-weight: 600;
-}
+        .chat-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            width: 90%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 4rem);
+        }
 
-.chat-messages {
-    flex-grow: 1;
-    padding: 20px;
-    overflow-y: auto;
-    background-color: #fffeeb;
-    position: relative; /* Allow absolute positioning of typing indicator */
-}
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
 
-.message {
-    margin-bottom: 15px;
-    padding: 12px;
-    border-radius: 6px;
-    max-width: 80%;
-    font-size: 1.1em;
-    position: relative; /* Allow positioning for typing indicator */
-    opacity: 0; /* Start hidden for animation */
-    animation: fadeIn 0.5s forwards; /* Fade in animation */
-}
+        .chat-header h1 {
+            font-size: 1.5rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        .chat-header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
 
-.user-message {
-    background-color: #c92923;
-    color: #eee2df; 
-    align-self: flex-end;
-    margin-left: auto;
-}
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
 
-.bot-message {
-    background-color: #fae7e9;
-    color: #8b0412;
-    align-self: flex-start;
-}
+        .message {
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.3s forwards;
+        }
 
-/* Typing indicator styles */
-.typing-indicator {
-    position: absolute;
-    bottom: 10px; /* Position it at the bottom */
-    left: 10px;
-    display: flex;
-    align-items: center;
-}
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.dot {
-    width: 8px;
-    height: 8px;
-    margin: 0 4px;
-    background-color: #c53030; /* Match bot message color */
-    border-radius: 50%;
-    animation: typing 1s infinite; /* Typing animation */
-}
+        .message-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
 
-@keyframes typing {
-    0%, 100% {
-        opacity: 0;
-    }
-    50% {
-        opacity: 1;
-    }
-}
-
-.chat-input {
-    display: flex;
-    padding: 16px;
-    background-color: #f0f4f8;
-    border-top: 1px solid #ddd;
-}
-
-#user-input {
-    flex-grow: 1;
-    padding: 12px;
-    border: 1px solid #B0BEC5;
-    border-radius: 6px;
-    font-size: 1.1em;
-    outline: none;
-}
-
-.btn-77 {
-    background-color: #c53030;
-    color: #fff;
-    cursor: pointer;
-    font-family: 'Source Serif Pro', serif;
-    font-size: 0.9em;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600; 
-    text-transform: uppercase;
-    margin-left: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.btn-77:hover {
-    background-color: #9b2c2c;
-}
-
-.option-button {
-    border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
-    margin: 10px; /* Add margin for spacing */
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 1.1em;
-    font-weight: 600;
-    color: white; 
-}
-
-.option-buttons-container {
-    display: flex;
-    justify-content: center; /* Center buttons horizontally */
-    margin-top: 10px; /* Spacing above the buttons */
-}
-
-.option-button.yes {
-    background-color: #28a745; /* Green for Yes */
-}
-
-.option-button.yes:hover {
-    background-color: #218838; /* Darker green on hover */
-}
-
-.option-button.no {
-    background-color: #dc3545; /* Red for No */
-}
-
-.option-button.no:hover {
-    background-color: #c82333; /* Darker red on hover */
-}
-
-.chat-footer {
-    background-color: #f0f4f8;
-    text-align: center;
-    padding: 12px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    font-size: 0.9em;
-    color: #555;
-}
-
-.chat-footer a {
-    color: #c53030; /* Match the red theme */
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.chat-footer a:hover {
-    text-decoration: underline;
-}
-.restart-button {
-            background-color: #4a90e2;
+        .user-message {
+            margin-left: auto;
+            background: #2B6CB0;
             color: white;
-            cursor: pointer;
-            font-family: 'Source Serif Pro', serif;
-            font-size: 0.9em;
-            padding: 0.5rem 1rem;
+        }
+
+        .bot-message {
+            margin-right: auto;
+            background: #EDF2F7;
+            color: #2D3748;
+        }
+
+        .input-area {
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        #message-input:focus {
+            border-color: #2B6CB0;
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        #send-button {
+            padding: 0.8rem 1.5rem;
+            background: #2B6CB0;
+            color: white;
             border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease;
-            /* Remove margin-left */
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
         }
 
-        .restart-button:hover {
-            background-color: #357ABD;
+        #send-button:hover {
+            background: #2C5282;
         }
 
-        #restart-button-container {
-            padding: 16px;
-            text-align: center; /* Ensure center alignment */
-            background-color: #f0f4f8;
-            display: none; /* Initially hidden */
+        .sample-questions {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 0 auto 2rem;
+            max-width: 900px;
+            width: 90%;
+        }
+
+        .sample-questions h2 {
+            margin-bottom: 1rem;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.8rem;
+        }
+
+        .sample-question {
+            padding: 0.8rem;
+            background: #EDF2F7;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s;
+            color: #2D3748;
+        }
+
+        .sample-question:hover {
+            background: #E2E8F0;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 640px) {
+            .chat-container {
+                margin: 1rem auto;
+                height: calc(100vh - 2rem);
+            }
+
+            .message-bubble {
+                max-width: 90%;
+            }
+
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            Sentiment Analysis Chatbot
+            <h1>Customer Review Sentiment Chatbot</h1>
+            <p>Ask me about our project or analyze your product reviews!</p>
         </div>
         <div class="chat-messages" id="chat-messages">
-            <!-- Messages will be added here dynamically -->
+            <!-- Messages will be added here -->
         </div>
-        <div class="chat-input" id="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="send-button" class="btn-77">Send</button>
-        </div>
-        <div id="restart-button-container">
-            <button id="restart-button" class="btn-77">Restart</button>
-        </div>
-        <div class="chat-footer">
-            &copy; 2024 Sentiment Analysis Project | <a href="https://github.com/Harsha-Chinthala/Bidirectional-LSTM-GRU-Model.git">GitHub Repository</a>
+        <div class="input-area">
+            <div class="input-container">
+                <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off">
+                <button id="send-button">Send</button>
+            </div>
         </div>
     </div>
 
+    <div class="sample-questions">
+        <h2>Sample questions to get started:</h2>
+        <div class="questions-grid">
+            <button class="sample-question">What is this project about?</button>
+            <button class="sample-question">Which dataset is used?</button>
+            <button class="sample-question">How does the sentiment analysis work?</button>
+            <button class="sample-question">what is LSTM?</button>
+        </div>
+    </div>
     <script>
-        const chatMessages = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
+        const messageInput = document.getElementById('message-input');
         const sendButton = document.getElementById('send-button');
-        const chatInput = document.getElementById('chat-input');
-        const restartButton = document.getElementById('restart-button');
-        const restartButtonContainer = document.getElementById('restart-button-container');
-
-        let userName = '';
-        let conversationStep = 0;
-
-        function addMessage(message, isUser) {
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message');
-            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
+        const chatMessages = document.getElementById('chat-messages');
+    
+        let userName = ''; // Store user's name
+        let userStep = 0; // Step in conversation flow
+    
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+    
+            const messageBubble = document.createElement('div');
+            messageBubble.className = `message-bubble ${isUser ? 'user-message' : 'bot-message'}`;
+            messageBubble.innerHTML = content; // Use innerHTML for better formatting
+    
+            messageDiv.appendChild(messageBubble);
+            chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
-        function showRestartButton() {
-            chatInput.style.display = 'none'; // Hide the input and send button
-            restartButtonContainer.style.display = 'block'; // Show the restart button
-        }
-
-        function handleRestart() {
-            // Clear chat and restart conversation
-            chatMessages.innerHTML = '';
-            userName = '';
-            conversationStep = 0;
-            addMessage("Hi User! What's your name?", false);
-            chatInput.style.display = 'flex'; // Show the input and send button again
-            restartButtonContainer.style.display = 'none'; // Hide the restart button
-        }
-
-        function getBotResponse(userMessage) {
-            return fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ comment: userMessage }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                return `Sentiment: ${data.label}`;
-            })
-            .catch(() => {
-                return "Sorry, I couldn't analyze that message. Please try again 🙂.";
-            });
-        }
-
-        function addOptionButtons() {
-            const buttonsContainer = document.createElement('div');
-            buttonsContainer.classList.add('option-buttons-container');
-
-            const yesButton = document.createElement('button');
-            yesButton.textContent = 'Yes';
-            yesButton.classList.add('option-button', 'yes');
-            yesButton.onclick = () => handleOptionSelection('yes');
-
-            const noButton = document.createElement('button');
-            noButton.textContent = 'No';
-            noButton.classList.add('option-button', 'no');
-            noButton.onclick = () => handleOptionSelection('no');
-
-            buttonsContainer.appendChild(yesButton);
-            buttonsContainer.appendChild(noButton);
-            chatMessages.appendChild(buttonsContainer);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function handleOptionSelection(option) {
-            if (option === 'yes') {
-                addMessage("Great! Please enter your next comment.", false);
-                conversationStep = 1;
-            } else if (option === 'no') {
-                addMessage(`Thank you for chatting, ${userName}! Have a great day 😊!`, false);
-                showRestartButton();
-                conversationStep = 3;
-            }
-            const buttons = document.querySelectorAll('.option-button');
-            buttons.forEach(button => button.closest('.option-buttons-container').remove());
-        }
-
-        function handleUserInput() {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                userInput.value = '';
-
-                switch (conversationStep) {
-                    case 0:
-                    const nameMatch = message.match(/(?:I am|I'm|My name is)?\s*([\w\s]+)/i);
-                    userName = nameMatch ? nameMatch[1].trim() : message;
-                        addMessage(`Nice to meet you, ${userName} 😃! Please enter a comment to analyze!`, false);
-                        conversationStep = 1;
-                        break;
-                    case 1:
-                        getBotResponse(message).then(response => {
-                            addMessage(response, false);
-                            addMessage("Do you have another comment?", false);
-                            addOptionButtons();
-                            conversationStep = 2;
+    
+        function handleUserMessage(message) {
+            if (message.trim() === '') return;
+    
+            // Add user message
+            addMessage(message, true);
+            messageInput.value = '';
+    
+            // Conversation flow
+            switch (userStep) {
+                case 0: // Greeting and Name
+                    const nameMatch = message.match(/(?:i am|my name is|this is)\s+(.+)/i);
+                    userName = nameMatch ? nameMatch[1].trim() : message.trim();
+    
+                    setTimeout(() => {
+                        addMessage(`Nice to meet you, ${userName}! 😊`, false);
+                        addMessage(
+                            'Would you like to analyze a sentiment or learn about the project? Type <b>"analyze sentiment"</b> or <b>"about project"</b>.',
+                            false
+                        );
+                        userStep = 1;
+                    }, 1000);
+                    break;
+    
+                case 1: // Choose Action
+                    if (message.toLowerCase().includes('analyze sentiment')) {
+                        setTimeout(() => {
+                            addMessage('Great! Please enter a product review, and I will analyze its sentiment for you.', false);
+                            userStep = 2;
+                        }, 1000);
+                    } else if (message.toLowerCase().includes('about project')) {
+                        setTimeout(() => {
+                            addMessage('Sure! Ask me any question about the project, such as "What is this project about?" or "What dataset was used?"', false);
+                            userStep = 3;
+                        }, 1000);
+                    } else {
+                        setTimeout(() => {
+                            addMessage('Please type <b>"analyze sentiment"</b> or <b>"about project"</b>.', false);
+                        }, 1000);
+                    }
+                    break;
+    
+                case 2: // Sentiment Analysis
+                    fetch('/predict', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ comment: message }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.label) {
+                                addMessage(`Analyzing your review: "${message}"`, false);
+                                addMessage(`Sentiment: ${data.label}`, false);
+                            } else {
+                                addMessage('Sorry, something went wrong with sentiment analysis.', false);
+                            }
+                            setTimeout(() => {
+                                addMessage(
+                                    'Would you like to analyze another review, ask about the project, or end the chat? Type "analyze sentiment", "about project", or "end".',
+                                    false
+                                );
+                                userStep = 6;
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            addMessage('Sorry, there was an error while analyzing the sentiment.', false);
                         });
-                        break;
-                }
+                    break;
+    
+                case 3: // About Project
+                    fetch('/ask_question', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: message }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            addMessage(data.answer || "I'm sorry, I don't have an answer for that question. Please ask something else.", false);
+                            setTimeout(() => {
+                                addMessage('Do you have another question? Type "yes" to ask or "no" to end the chat or analyze sentiment.', false);
+                                userStep = 4;
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            addMessage('Sorry, there was an error while fetching project information.', false);
+                        });
+                    break;
+    
+                case 4: // Follow-up Question
+                    if (message.toLowerCase() === 'yes') {
+                        setTimeout(() => {
+                            addMessage('Sure! Ask me another question about the project.', false);
+                            userStep = 3;
+                        }, 1000);
+                    } else if (message.toLowerCase() === 'no') {
+                        setTimeout(() => {
+                            addMessage('Do you want to end the chat or analyze another review? Type "end" to end or "analyze sentiment" to analyze another review.', false);
+                            userStep = 5;
+                        }, 1000);
+                    } else {
+                        addMessage('Please type "yes" or "no".', false);
+                    }
+                    break;
+    
+                case 5: // Ending Chat
+                    if (message.toLowerCase() === 'end') {
+                        setTimeout(() => {
+                            addMessage('Thank you for using the sentiment analysis chatbot. Have a great day! 😊', false);
+                            messageInput.disabled = true;
+                            sendButton.disabled = true;
+                        }, 1000);
+                    } else if (message.toLowerCase() === 'analyze sentiment') {
+                        setTimeout(() => {
+                            addMessage('Great! Please enter another product review.', false);
+                            userStep = 2;
+                        }, 1000);
+                    } else {
+                        addMessage('Please type "end" or "analyze sentiment".', false);
+                    }
+                    break;
+    
+                case 6: // Next Step After Sentiment Analysis
+                    if (message.toLowerCase() === 'analyze sentiment') {
+                        addMessage('Great! Please enter another product review.', false);
+                        userStep = 2;
+                    } else if (message.toLowerCase() === 'about project') {
+                        addMessage('Sure! Ask me any question about the project.', false);
+                        userStep = 3;
+                    } else if (message.toLowerCase() === 'end') {
+                        addMessage('Thank you for using the sentiment analysis chatbot. Have a great day! 😊', false);
+                        messageInput.disabled = true;
+                        sendButton.disabled = true;
+                    } else {
+                        addMessage('Please type "analyze sentiment", "about project", or "end".', false);
+                    }
+                    break;
+    
+                default:
+                    addMessage('Sorry, I didn’t understand that. Please restart the chat.', false);
             }
         }
-
-        sendButton.addEventListener('click', handleUserInput);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleUserInput();
-            }
+    
+        sendButton.addEventListener('click', () => handleUserMessage(messageInput.value));
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUserMessage(messageInput.value);
         });
-        
-        restartButton.addEventListener('click', handleRestart);
-
-        // Initial bot message
-        addMessage("Hi User! What's your name?", false);
+    
+        setTimeout(() => addMessage("👋 Hello! What is your name?", false), 500);
     </script>
 </body>
-</html>
-</html>
 </html>
