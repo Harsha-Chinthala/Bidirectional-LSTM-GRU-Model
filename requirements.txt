@@ -7,7 +7,7 @@ click==8.2.1
 Flask==3.1.1
 flatbuffers==25.2.10
 gast==0.6.0
-gensim==4.3.3
+gensim==4.3.2
 google-pasta==0.2.0
 grpcio==1.74.0
 gunicorn==23.0.0
@@ -16,7 +16,7 @@ idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
 joblib==1.5.1
-keras==3.11.2
+keras==2.12.0
 libclang==18.1.1
 Markdown==3.8.2
 markdown-it-py==4.0.0
@@ -25,7 +25,7 @@ mdurl==0.1.2
 ml_dtypes==0.5.3
 namex==0.1.0
 nltk==3.9.1
-numpy==1.26.4
+numpy==1.23.5
 opt_einsum==3.4.0
 optree==0.17.0
 packaging==25.0
@@ -40,12 +40,12 @@ regex==2025.7.34
 requests==2.32.4
 rich==14.1.0
 scikit-learn==1.7.1
-scipy==1.13.1
+scipy==1.10.1
 six==1.17.0
 smart_open==7.3.0.post1
 tensorboard==2.20.0
 tensorboard-data-server==0.7.2
-tensorflow==2.20.0
+tensorflow==2.12.0
 termcolor==3.1.0
 threadpoolctl==3.6.0
 tqdm==4.67.1
