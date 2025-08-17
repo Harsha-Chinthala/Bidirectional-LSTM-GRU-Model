@@ -1,16 +1,17 @@
 from flask import Flask, request, jsonify, render_template
 import tensorflow as tf
+import keras
 from gensim.models import Word2Vec
 import pickle
 import numpy as np
 import string
-from tensorflow.keras.utils import register_keras_serializable
+from keras.utils import register_keras_serializable
 from rapidfuzz import process
 
 app = Flask(__name__)
 
 @register_keras_serializable()
-class SumAlongAxis(tf.keras.layers.Layer):
+class SumAlongAxis(keras.layers.Layer):
     def call(self, inputs):
         return tf.reduce_sum(inputs, axis=1)
 
@@ -19,11 +20,12 @@ class SumAlongAxis(tf.keras.layers.Layer):
 
 # Load models and other necessary files
 try:
-    model = tf.keras.models.load_model(
+    model = keras.models.load_model(
         'amazon_sentiment_model.keras',
         custom_objects={'SumAlongAxis': SumAlongAxis}
     )
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])  # Compile after loading
+    if model:
+        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])  # Compile after loading
     wv_model = Word2Vec.load('word2vec_model.bin')
 
     with open('stop_words.pkl', 'rb') as f:
@@ -43,6 +45,7 @@ def remove_stop_words(raw_sen, stop_words):
 def predict_sentiment(comment):
     comment = remove_punctuation(comment)
     comment = remove_stop_words(comment.split(), stop_words)
+    
     word_set = set(wv_model.wv.index_to_key)
     valid_words = [w for w in comment if w in word_set]
 
@@ -56,8 +59,11 @@ def predict_sentiment(comment):
             X[0, nw] = wv_model.wv[w]
             nw -= 1
 
-    prediction = model.predict(X)
-    return float(prediction[0][0])
+    if model:
+        prediction = model.predict(X)
+        return float(prediction[0][0])
+    else:
+        return 0.5  # Default neutral score if model not loaded
 
 @app.route('/')
 def home():
