@@ -3,10 +3,12 @@ from tensorflow import keras
 import tensorflow as tf
 from tensorflow.keras.utils import register_keras_serializable
 from gensim.models import Word2Vec
+from gensim.models.keyedvectors import KeyedVectors
 import pickle
 import numpy as np
 import string
 from rapidfuzz import process
+import os
 
 app = Flask(__name__)
 
@@ -21,18 +23,28 @@ class SumAlongAxis(keras.layers.Layer):
 
 # -------------------- Load Models and Data -------------------- #
 try:
+    print("Loading models and data...")
+
+    # Load Keras model
     model = keras.models.load_model(
         'amazon_sentiment_model.keras',
         custom_objects={'SumAlongAxis': SumAlongAxis}
     )
     if not model:
         raise ValueError("Model failed to load")
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-    wv_model = Word2Vec.load('word2vec_model.bin')
+    # The model compile method has changed and is now part of the Keras model.
+    # It's not necessary to call it again here.
 
+    # Corrected line for loading the Word2Vec binary model
+    # The 'binary=True' parameter is crucial for .bin files
+    wv_model = KeyedVectors.load_word2vec_format('word2vec_model.bin', binary=True)
+
+    # Load stop words
     with open('stop_words.pkl', 'rb') as f:
         stop_words = pickle.load(f)
+
+    print("Models and data loaded successfully.")
 
 except Exception as e:
     print(f"Error loading models or data: {e}")
@@ -50,24 +62,27 @@ def remove_stop_words(words, stop_words):
 # -------------------- Sentiment Prediction -------------------- #
 def predict_sentiment(comment):
     if not model or not wv_model:
+        # Log a more specific error for debugging on Render
+        print("Model or Word2Vec model is not loaded. Returning neutral.")
         return 0.5  # Neutral if models not loaded
 
     comment = remove_punctuation(comment)
     words = remove_stop_words(comment.split(), stop_words)
-    word_set = set(wv_model.wv.index_to_key)
+
+    # Check for words in Word2Vec model and remove out-of-vocabulary words
+    word_set = set(wv_model.index_to_key)
     valid_words = [w for w in words if w in word_set]
 
     if not valid_words:
         return 0.5
 
-    X = np.zeros((1, 25, 100))
-    nw = 24
-    for w in reversed(valid_words):
-        if nw < 0:
-            break
-        if w in word_set:
-            X[0, nw] = wv_model.wv[w]
-            nw -= 1
+    # Pad the sequence to a fixed length
+    max_words = 25
+    padded_words = valid_words[-max_words:]
+
+    X = np.zeros((1, max_words, 100))
+    for i, w in enumerate(padded_words):
+        X[0, max_words - len(padded_words) + i] = wv_model[w]
 
     prediction = model.predict(X, verbose=0)
     return float(prediction[0][0])
@@ -86,7 +101,6 @@ def predict():
     try:
         data = request.get_json(force=True)
         comment = data.get('comment', '')
-
         sentiment_score = predict_sentiment(comment)
 
         if sentiment_score >= 0.6:
@@ -99,6 +113,7 @@ def predict():
         return jsonify({'label': label})
 
     except Exception as e:
+        print(f"Error during sentiment prediction: {e}")
         return jsonify({'error': f'Sorry, something went wrong: {str(e)}'}), 500
 
 @app.route('/ask_question', methods=['POST'])
@@ -163,6 +178,5 @@ def ask_question():
 
 # -------------------- Run App -------------------- #
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
