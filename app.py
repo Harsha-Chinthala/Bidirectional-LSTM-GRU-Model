@@ -9,6 +9,8 @@ import numpy as np
 import string
 from rapidfuzz import process
 import os
+import nltk
+from nltk.corpus import stopwords
 
 app = Flask(__name__)
 
@@ -33,16 +35,16 @@ try:
     if not model:
         raise ValueError("Model failed to load")
 
-    # The model compile method has changed and is now part of the Keras model.
-    # It's not necessary to call it again here.
-
     # Corrected line for loading the Word2Vec binary model
-    # The 'binary=True' parameter is crucial for .bin files
     wv_model = KeyedVectors.load_word2vec_format('word2vec_model.bin', binary=True)
-
-    # Load stop words
-    with open('stop_words.pkl', 'rb') as f:
-        stop_words = pickle.load(f)
+    
+    # Generate stop words list directly
+    try:
+        stopwords.words('english')
+    except:
+        nltk.download('stopwords')
+    
+    stop_words = list(set(stopwords.words('english')))
 
     print("Models and data loaded successfully.")
 
@@ -62,21 +64,18 @@ def remove_stop_words(words, stop_words):
 # -------------------- Sentiment Prediction -------------------- #
 def predict_sentiment(comment):
     if not model or not wv_model:
-        # Log a more specific error for debugging on Render
         print("Model or Word2Vec model is not loaded. Returning neutral.")
-        return 0.5  # Neutral if models not loaded
+        return 0.5
 
     comment = remove_punctuation(comment)
     words = remove_stop_words(comment.split(), stop_words)
 
-    # Check for words in Word2Vec model and remove out-of-vocabulary words
     word_set = set(wv_model.index_to_key)
     valid_words = [w for w in words if w in word_set]
 
     if not valid_words:
         return 0.5
 
-    # Pad the sequence to a fixed length
     max_words = 25
     padded_words = valid_words[-max_words:]
 
@@ -122,7 +121,6 @@ def ask_question():
         data = request.get_json(force=True)
         question = data.get('question', '')
 
-        # Predefined answers
         answers = {
             "project name": "Sentiment Analysis of Product Reviews for Enhanced Customer Feedback which is a hybrid model of LSTM and Bidirectional GRU.",
             "description": "This project analyzes customer reviews and classifies them into positive, negative, or neutral sentiments using deep learning.",
@@ -143,7 +141,6 @@ def ask_question():
             "model accuracy": "Achieved 90.03% accuracy on the test dataset.",
         }
 
-        # Variants for fuzzy matching
         question_variants = {
             "project name": ["project title", "project name", "title of the project"],
             "description": ["description", "project about"],
@@ -156,7 +153,6 @@ def ask_question():
             "preprocessing": ["preprocessing", "data preprocessing"],
         }
 
-        # Fuzzy matching
         best_match_key = None
         best_score = 0
         for key, variants in question_variants.items():
